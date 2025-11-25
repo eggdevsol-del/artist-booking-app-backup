@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: artist-booking-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: artist_booking
+      MYSQL_USER: artist_user
+      MYSQL_PASSWORD: artist_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - artist-booking-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: artist-booking-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - artist-booking-network
+
+  # Main Application (Monolith - will be replaced by microservices)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: artist-booking-app
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://artist_user:artist_password@mysql:3306/artist_booking
+      REDIS_URL: redis://redis:6379
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - artist-booking-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  artist-booking-network:
+    driver: bridge

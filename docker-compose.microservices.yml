@@ -1,0 +1,150 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: artist-booking-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: artist_booking
+      MYSQL_USER: artist_user
+      MYSQL_PASSWORD: artist_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices-network
+
+  # MongoDB (for notifications and messaging)
+  mongodb:
+    image: mongo:7
+    container_name: artist-booking-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - microservices-network
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: artist-booking-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - microservices-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: artist-booking-api-gateway
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      JWT_SECRET: your-secret-key-change-in-production
+      AUTH_SERVICE_URL: http://auth-service:3001
+      NOTIFICATION_SERVICE_URL: http://notification-service:3002
+      FILE_SERVICE_URL: http://file-service:3003
+      MESSAGING_SERVICE_URL: http://messaging-service:3004
+      APPOINTMENTS_SERVICE_URL: http://appointments-service:3005
+      PROFILE_SERVICE_URL: http://profile-service:3006
+      ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    container_name: artist-booking-notification-service
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      MONGODB_URL: mongodb://admin:adminpassword@mongodb:27017
+      REDIS_URL: redis://redis:6379
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM:-noreply@artistbooking.com}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY}
+      VAPID_EMAIL: ${VAPID_EMAIL}
+    ports:
+      - "3002:3002"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # Main Application (Legacy Monolith - to be phased out)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: artist-booking-app-legacy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://artist_user:artist_password@mysql:3306/artist_booking
+      REDIS_URL: redis://redis:6379
+      PORT: 3000
+      # Point to API Gateway for microservices
+      API_GATEWAY_URL: http://api-gateway:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api-gateway:
+        condition: service_started
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  mongodb_data:
+  redis_data:
+
+networks:
+  microservices-network:
+    driver: bridge
