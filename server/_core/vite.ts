@@ -7,7 +7,6 @@ import path from "path";
 export async function setupVite(app: Express, server: Server) {
   // Dynamic import of Vite only in development mode
   const { createServer: createViteServer } = await import("vite");
-  const viteConfig = await import("../../vite.config");
   
   const serverOptions = {
     middlewareMode: true,
@@ -15,9 +14,11 @@ export async function setupVite(app: Express, server: Server) {
     allowedHosts: true as const,
   };
 
+  // Load the vite config file using Vite's config resolution
+  // This way, the config file is only loaded in dev mode and its imports
+  // won't be bundled into production
   const vite = await createViteServer({
-    ...viteConfig.default,
-    configFile: false,
+    configFile: path.resolve(import.meta.dirname, "../..", "vite.config.ts"),
     server: serverOptions,
     appType: "custom",
   });
