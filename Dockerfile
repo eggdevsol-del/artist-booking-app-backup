@@ -10,13 +10,14 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches
 
-# Install dependencies
+# Install dependencies (including dev dependencies for build)
 FROM base AS dependencies
 RUN pnpm install --frozen-lockfile
 
 # Build stage
 FROM dependencies AS build
 COPY . .
+# Build both client (Vite) and server (esbuild)
 RUN pnpm build
 
 # Production stage
@@ -38,6 +39,9 @@ COPY --from=build /app/drizzle ./drizzle
 
 # Expose port
 EXPOSE 3000
+
+# Set production environment
+ENV NODE_ENV=production
 
 # Start the application
 CMD ["node", "dist/index.js"]
