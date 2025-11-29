@@ -52,21 +52,58 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   // In production, the server runs from dist/index.js
-  // So we need to look for dist/public relative to the project root
-  const distPath =
-    process.env.NODE_ENV === "development"
-      ? path.resolve(import.meta.dirname, "../..", "dist", "public")
-      : path.resolve(process.cwd(), "dist", "public");
+  // Try multiple possible paths for static files
+  let distPath: string;
+  
+  if (process.env.NODE_ENV === "development") {
+    distPath = path.resolve(import.meta.dirname, "../..", "dist", "public");
+  } else {
+    // Try different possible locations in production
+    const possiblePaths = [
+      path.resolve(process.cwd(), "dist", "public"),
+      path.join(process.cwd(), "dist", "public"),
+      path.resolve(process.cwd(), "public"),
+    ];
+    
+    console.log("[Static Files] Searching for static files...");
+    console.log("[Static Files] Current working directory:", process.cwd());
+    
+    distPath = possiblePaths.find(p => {
+      const exists = fs.existsSync(p);
+      console.log(`[Static Files] Checking ${p}: ${exists ? '✓ FOUND' : '✗ not found'}`);
+      return exists;
+    }) || possiblePaths[0];
+  }
+  
+  console.log(`[Static Files] Using path: ${distPath}`);
+  
   if (!fs.existsSync(distPath)) {
     console.error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
+      `[Static Files] ERROR: Could not find the build directory: ${distPath}`
     );
+    console.error("[Static Files] Available files in current directory:");
+    try {
+      const files = fs.readdirSync(process.cwd());
+      console.error(files);
+    } catch (e) {
+      console.error("Could not list files:", e);
+    }
+  } else {
+    console.log("[Static Files] ✓ Static files directory found");
+    const files = fs.readdirSync(distPath);
+    console.log("[Static Files] Files in directory:", files);
   }
 
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+    const indexPath = path.resolve(distPath, "index.html");
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      console.error(`[Static Files] ERROR: index.html not found at ${indexPath}`);
+      res.status(500).send("Application files not found. Please check server logs.");
+    }
   });
 }
