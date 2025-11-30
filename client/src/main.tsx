@@ -9,6 +9,27 @@ import { getLoginUrl } from "./const";
 import "./index.css";
 import { registerServiceWorker } from "./lib/pwa";
 import { initializeOneSignal } from "./lib/onesignal";
+import ErrorBoundary from "./components/ErrorBoundary";
+
+// Global error handler to catch and display errors
+window.addEventListener('error', (event) => {
+  console.error('[Global Error]', event.error);
+  const root = document.getElementById('root');
+  if (root && root.innerHTML === '') {
+    root.innerHTML = `
+      <div style="padding: 20px; font-family: system-ui; max-width: 600px; margin: 40px auto;">
+        <h1 style="color: #dc2626;">⚠️ Application Error</h1>
+        <p style="color: #666;">The application failed to start. Error details:</p>
+        <pre style="background: #f3f4f6; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px;">${event.error?.stack || event.error?.message || 'Unknown error'}</pre>
+        <p style="color: #666; margin-top: 20px;">Please contact support or try refreshing the page.</p>
+      </div>
+    `;
+  }
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Unhandled Promise Rejection]', event.reason);
+});
 
 const queryClient = new QueryClient();
 
@@ -68,11 +89,13 @@ const trpcClient = trpc.createClient({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </trpc.Provider>
+  <ErrorBoundary>
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </trpc.Provider>
+  </ErrorBoundary>
 );
 
 // Register service worker for PWA
@@ -80,7 +103,10 @@ if (import.meta.env.PROD) {
   registerServiceWorker();
 }
 
-// Initialize OneSignal for push notifications
-initializeOneSignal().catch(err => {
-  console.error('[OneSignal] Failed to initialize:', err);
-});
+// Initialize OneSignal for push notifications (non-blocking)
+if (import.meta.env.PROD) {
+  initializeOneSignal().catch(err => {
+    console.error('[OneSignal] Failed to initialize:', err);
+    // Don't let OneSignal errors break the app
+  });
+}
