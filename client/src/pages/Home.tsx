@@ -1,136 +1,124 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
-import { Calendar, MessageCircle, Sparkles, Users } from "lucide-react";
-import { useEffect } from "react";
+import { APP_LOGO, APP_TITLE } from "@/const";
+import { Calendar, MessageCircle, Sparkles, Users, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
 
-  // TEMPORARY: Authentication disabled - no automatic redirects
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/10">
-        <div className="animate-pulse text-primary text-lg">Loading...</div>
+      <div className="gradient-bg min-h-screen flex items-center justify-center">
+        <div className="glass-card p-6">
+          <div className="animate-pulse text-[var(--accent-blue)] text-lg font-semibold">Loading...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/10">
+    <div className="gradient-bg min-h-screen flex flex-col">
       {/* Header */}
-      <header className="mobile-header px-4 py-4">
-        <div className="flex items-center justify-between">
+      <header className="glass-nav px-4 py-4">
+        <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-3">
             {APP_LOGO && (
-              <img src={APP_LOGO} alt={APP_TITLE} className="h-8 w-8 rounded-lg" />
+              <img src={APP_LOGO} alt={APP_TITLE} className="h-10 w-10 rounded-xl glass-avatar" />
             )}
-            <h1 className="text-xl font-bold text-foreground">{APP_TITLE}</h1>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{APP_TITLE}</h1>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md space-y-8">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+        <div className="w-full max-w-2xl space-y-10 fade-in">
           {/* Logo & Title */}
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-accent shadow-lg">
-              <Sparkles className="w-10 h-10 text-primary-foreground" />
+          <div className="text-center space-y-6">
+            <div className="inline-flex items-center justify-center w-24 h-24 glass-card">
+              <Sparkles className="w-12 h-12 text-[var(--accent-teal)]" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-foreground mb-2">
+              <h2 className="text-5xl font-bold text-gradient mb-3">
                 Welcome to {APP_TITLE}
               </h2>
-              <p className="text-muted-foreground text-base">
+              <p style={{ color: 'var(--text-secondary)' }} className="text-xl">
                 Connect, book, and manage appointments seamlessly
               </p>
             </div>
           </div>
 
           {/* Feature Cards */}
-          <div className="grid gap-3">
-            <Card className="border-2 border-primary/20 bg-card/50 backdrop-blur">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <MessageCircle className="w-5 h-5 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">Real-time Chat</CardTitle>
+          <div className="grid gap-4">
+            <div className="glass-card slide-up">
+              <div className="flex items-start gap-4">
+                <div className="glass-card p-3 flex-shrink-0">
+                  <MessageCircle className="w-6 h-6 text-[var(--accent-blue)]" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Instant messaging with clients for bookings and consultations
-                </CardDescription>
-              </CardContent>
-            </Card>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                    Real-time Chat
+                  </h3>
+                  <p style={{ color: 'var(--text-secondary)' }}>
+                    Instant messaging with clients for bookings and consultations
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <Card className="border-2 border-accent/20 bg-card/50 backdrop-blur">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-accent/10">
-                    <Calendar className="w-5 h-5 text-accent" />
-                  </div>
-                  <CardTitle className="text-lg">Smart Calendar</CardTitle>
+            <div className="glass-card slide-up" style={{ animationDelay: '0.1s' }}>
+              <div className="flex items-start gap-4">
+                <div className="glass-card p-3 flex-shrink-0">
+                  <Calendar className="w-6 h-6 text-[var(--accent-purple)]" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Easy-to-read calendar with week and day views for appointments
-                </CardDescription>
-              </CardContent>
-            </Card>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                    Smart Calendar
+                  </h3>
+                  <p style={{ color: 'var(--text-secondary)' }}>
+                    Easy-to-read calendar with week and day views for appointments
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <Card className="border-2 border-secondary/20 bg-card/50 backdrop-blur">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-secondary/10">
-                    <Users className="w-5 h-5 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">For Artists & Clients</CardTitle>
+            <div className="glass-card slide-up" style={{ animationDelay: '0.2s' }}>
+              <div className="flex items-start gap-4">
+                <div className="glass-card p-3 flex-shrink-0">
+                  <Users className="w-6 h-6 text-[var(--accent-pink)]" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Tailored experience for both service providers and customers
-                </CardDescription>
-              </CardContent>
-            </Card>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                    For Artists & Clients
+                  </h3>
+                  <p style={{ color: 'var(--text-secondary)' }}>
+                    Tailored experience for both service providers and customers
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Authentication Buttons */}
-          <div className="space-y-3">
-            <Button
-              size="lg"
-              className="w-full h-14 text-lg font-semibold shadow-lg"
+          {/* CTA Buttons */}
+          <div className="grid grid-cols-2 gap-4 pt-4">
+            <button
               onClick={() => setLocation("/login")}
+              className="glass-button h-14 text-lg font-semibold flex items-center justify-center gap-2"
             >
               Sign In
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="w-full h-14 text-lg font-semibold shadow-lg"
+              <ArrowRight className="w-5 h-5" />
+            </button>
+            <button
               onClick={() => setLocation("/signup")}
+              className="glass-button-primary h-14 text-lg font-semibold flex items-center justify-center gap-2"
             >
               Create Account
-            </Button>
+              <Sparkles className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="py-6 px-4 text-center text-sm text-muted-foreground">
-        <p>© 2025 {APP_TITLE}. Beautiful appointments made simple.</p>
-      </footer>
-
-
     </div>
   );
 }
-

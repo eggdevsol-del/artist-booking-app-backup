@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2, LogIn, Mail } from "lucide-react";
+import { Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -53,114 +49,130 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 px-4">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <LogIn className="w-8 h-8 text-primary" />
+    <div className="gradient-bg min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="glass-container max-w-md w-full fade-in">
+        {/* Icon */}
+        <div className="flex justify-center mb-6">
+          <div className="glass-card w-20 h-20 flex items-center justify-center">
+            <Sparkles className="w-10 h-10 text-[var(--accent-blue)]" />
           </div>
-          <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
-          <CardDescription className="text-base">
-            Sign in to your account to continue
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  disabled={isLoading}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                  disabled={isLoading}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-            </div>
+        </div>
 
-            <Button
-              type="submit"
-              className="w-full h-12 text-lg font-semibold"
-              disabled={isLoading}
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gradient mb-2">
+            Welcome Back
+          </h1>
+          <p style={{ color: 'var(--text-secondary)' }} className="text-lg">
+            Sign in to continue your journey
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email Input */}
+          <div>
+            <label 
+              htmlFor="email" 
+              className="block text-sm font-semibold mb-2"
+              style={{ color: 'var(--text-primary)' }}
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </form>
-
-          <div className="mt-6 space-y-4">
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="glass-input"
+              disabled={isLoading}
+              required
+            />
+          </div>
+          
+          {/* Password Input */}
+          <div>
+            <label 
+              htmlFor="password" 
+              className="block text-sm font-semibold mb-2"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Password
+            </label>
             <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Don't have an account?
-                </span>
-              </div>
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="glass-input pr-12"
+                disabled={isLoading}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                disabled={isLoading}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
             </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full h-12"
-              onClick={() => setLocation("/signup")}
-              disabled={isLoading}
-            >
-              Create Account
-            </Button>
-
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              onClick={() => setLocation("/forgot-password")}
-              disabled={isLoading}
-            >
-              Forgot password?
-            </Button>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="glass-button-primary w-full h-14 text-lg font-semibold flex items-center justify-center gap-2"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="glass-divider my-6" />
+
+        {/* Sign Up Link */}
+        <div className="text-center mb-4">
+          <p style={{ color: 'var(--text-secondary)' }} className="text-sm mb-3">
+            Don't have an account?
+          </p>
+          <button
+            type="button"
+            className="glass-button w-full h-12"
+            onClick={() => setLocation("/signup")}
+            disabled={isLoading}
+          >
+            Create Account
+          </button>
+        </div>
+
+        {/* Forgot Password */}
+        <div className="text-center">
+          <button
+            type="button"
+            className="text-[var(--accent-blue)] text-sm font-medium hover:underline"
+            onClick={() => setLocation("/forgot-password")}
+            disabled={isLoading}
+          >
+            Forgot password?
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
-

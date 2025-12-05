@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2, UserPlus, Mail, User } from "lucide-react";
+import { Eye, EyeOff, Loader2, Sparkles } from "lucide-react";
 
 export default function Signup() {
   const [, setLocation] = useLocation();
@@ -63,195 +59,219 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 px-4 py-8">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <UserPlus className="w-8 h-8 text-primary" />
+    <div className="gradient-bg min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="glass-container max-w-md w-full fade-in">
+        {/* Icon */}
+        <div className="flex justify-center mb-6">
+          <div className="glass-card w-20 h-20 flex items-center justify-center">
+            <Sparkles className="w-10 h-10 text-[var(--accent-purple)]" />
           </div>
-          <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
-          <CardDescription className="text-base">
-            Join us to book appointments and connect with artists
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="pl-10"
-                  disabled={isLoading}
-                  required
-                />
-              </div>
-            </div>
+        </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  disabled={isLoading}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="At least 8 characters"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                  required
-                  minLength={8}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                  disabled={isLoading}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Re-enter your password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  disabled={isLoading}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                  disabled={isLoading}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>I am a...</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setRole("artist")}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    role === "artist"
-                      ? "border-primary bg-primary/5 shadow-sm"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  disabled={isLoading}
-                >
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">🎨</div>
-                    <div className="font-semibold">Artist</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Manage bookings
-                    </div>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole("client")}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    role === "client"
-                      ? "border-primary bg-primary/5 shadow-sm"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  disabled={isLoading}
-                >
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">👤</div>
-                    <div className="font-semibold">Client</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Book appointments
-                    </div>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full h-12 text-lg font-semibold"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Creating account...
-                </>
-              ) : (
-                "Create Account"
-              )}
-            </Button>
-          </form>
-
-          <div className="mt-6 space-y-4">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Already have an account?
-                </span>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full h-12"
-              onClick={() => setLocation("/login")}
-              disabled={isLoading}
-            >
-              Sign In
-            </Button>
-          </div>
-
-          <p className="mt-4 text-xs text-center text-muted-foreground">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gradient mb-2">
+            Create Account
+          </h1>
+          <p style={{ color: 'var(--text-secondary)' }} className="text-lg">
+            Join us to book appointments and connect
           </p>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Name Input */}
+          <div>
+            <label 
+              htmlFor="name" 
+              className="block text-sm font-semibold mb-2"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Full Name
+            </label>
+            <input
+              id="name"
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="glass-input"
+              disabled={isLoading}
+              required
+            />
+          </div>
+
+          {/* Email Input */}
+          <div>
+            <label 
+              htmlFor="email" 
+              className="block text-sm font-semibold mb-2"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="glass-input"
+              disabled={isLoading}
+              required
+            />
+          </div>
+          
+          {/* Password Input */}
+          <div>
+            <label 
+              htmlFor="password" 
+              className="block text-sm font-semibold mb-2"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Password
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="At least 8 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="glass-input pr-12"
+                disabled={isLoading}
+                required
+                minLength={8}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                disabled={isLoading}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Confirm Password Input */}
+          <div>
+            <label 
+              htmlFor="confirmPassword" 
+              className="block text-sm font-semibold mb-2"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              Confirm Password
+            </label>
+            <div className="relative">
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Re-enter your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="glass-input pr-12"
+                disabled={isLoading}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                disabled={isLoading}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Role Selection */}
+          <div>
+            <label 
+              className="block text-sm font-semibold mb-3"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              I am a...
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setRole("artist")}
+                className={`glass-card p-5 transition-all ${
+                  role === "artist" ? "ring-2 ring-[var(--accent-blue)]" : ""
+                }`}
+                disabled={isLoading}
+              >
+                <div className="text-center">
+                  <div className="text-3xl mb-2">🎨</div>
+                  <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>Artist</div>
+                  <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                    Manage bookings
+                  </div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("client")}
+                className={`glass-card p-5 transition-all ${
+                  role === "client" ? "ring-2 ring-[var(--accent-blue)]" : ""
+                }`}
+                disabled={isLoading}
+              >
+                <div className="text-center">
+                  <div className="text-3xl mb-2">👤</div>
+                  <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>Client</div>
+                  <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                    Book appointments
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="glass-button-primary w-full h-14 text-lg font-semibold flex items-center justify-center gap-2"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Creating account...
+              </>
+            ) : (
+              "Create Account"
+            )}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="glass-divider my-6" />
+
+        {/* Login Link */}
+        <div className="text-center">
+          <p style={{ color: 'var(--text-secondary)' }} className="text-sm mb-3">
+            Already have an account?
+          </p>
+          <button
+            type="button"
+            className="glass-button w-full h-12"
+            onClick={() => setLocation("/login")}
+            disabled={isLoading}
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
-
